@@ -142,11 +142,11 @@ bool Number::operator<(Number op2)
     {
         if (this->magn[i] < op2.magn[i])
         {
-            return true;
+            return (this->sign == '+');
         }
         if (this->magn[i] > op2.magn[i])
         {
-            return false;
+            return (this->sign == '-');
         }
     }
     // both Numbers are equal
