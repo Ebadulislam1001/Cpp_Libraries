@@ -154,6 +154,7 @@ bool Number::operator<(Number op2)
 }
 bool Number::operator==(Number op2)
 {
+    // (A == B) if and only if (A.sign == B.sign && A.magn == B.magn)
     return (this->sign == op2.sign && this->magn == op2.magn);
 }
 bool Number::operator>(Number op2)
@@ -312,9 +313,9 @@ Number Number::operator*(Number op2)
         return (*this * op2.inverse()).inverse();
     }
 
-    if (this->magn == "0" || op2.magn == "0")
+    Number zero(0);
+    if (*this == zero || op2 == zero)
     {
-        Number zero(0);
         return zero;
     }
 
@@ -427,12 +428,12 @@ Number Number::operator^(Number op2)
         // (A ^ -1) == (1 / A) == (0)
         return zero;
     }
-    if (op2.magn == "0")
+    if (op2 == zero)
     {
         // (A ^ 0) == 1
         return one;
     }
-    if (op2.magn == "1")
+    if (op2 == one)
     {
         // (A ^ 1) == A
         return *this;
