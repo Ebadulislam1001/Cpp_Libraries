@@ -19,6 +19,7 @@ public:
     Number(Number &num);
 
     // util methods
+    int getSize();
     void show();
     void show(string prefix, string suffix);
 
@@ -100,6 +101,10 @@ Number::Number(Number &num)
     this->magn = num.magn;
 }
 
+int Number::getSize()
+{
+    return this->magn.size();
+}
 void Number::show()
 {
     printf("%c", this->sign);
@@ -421,7 +426,6 @@ Number Number::operator^(Number op2)
 {
     Number zero(0);
     Number one(1);
-    Number two(2);
 
     if (op2.sign == '-')
     {
@@ -439,16 +443,18 @@ Number Number::operator^(Number op2)
         return *this;
     }
 
-    Number parity = op2 % two;  // (B / 2)
-    Number halfExp = op2 / two; // (B % 2)
+    // At this point, 1 < B
+    Number two(2);
+    Number parity = op2 % two; // (B % 2)
+    Number halfEx = op2 / two; // (B / 2)
 
-    Number temp1 = this->operator^(halfExp); // (A ^ (B / 2))
-    Number temp2 = temp1 * temp1;            // (A ^ (B / 2)) ^ 2
+    // B = halfEx + halfEx + parity
+    Number temp1 = this->operator^(halfEx); // A ^ (halfEx)
+    Number temp2 = temp1 * temp1;           // A ^ (halfEx + halfEx)
+    Number power = temp2 *((*this) ^ parity);        // A ^ (halfEx + halfEx + parity) = (A ^ B)
 
-    Number temp3 = (*this) ^ parity; // (A ^ (B % 2))
-
-    // (A ^ B) == ((A ^ (B / 2)) ^ 2) * (A ^ (B % 2))
-    return temp3;
+    // op2.show("returning after calculting power for(",")\n");
+    return power;
 }
 
 int main()
@@ -575,6 +581,7 @@ int main()
             A.show("\nResult = (", ")");
             B.show(" ^ (", ")");
             Result.show(" = (", ")\n");
+            printf("No of digits = %d", Result.getSize());
 
             A = Result;
             break;
