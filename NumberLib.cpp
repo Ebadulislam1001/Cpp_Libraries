@@ -357,67 +357,153 @@ Number Number::operator*(Number op2)
 }
 Number Number::operator/(Number op2)
 {
-    // Converting negative operands to positive
-    if (this->sign == '-' && op2.sign == '-')
-    {
-        // (A / B)  ==  (-A) / (-B)
-        return (this->inverse() / op2.inverse());
-    }
-    if (this->sign == '-')
-    {
-        // (A / B)  == -((-A) / B)
-        return (this->inverse() / op2).inverse();
-    }
+    // Given the relations :
+    // [A = B*Q + R] && [0 <= R < B]
+    // We say:
+    // (A / B) gives Q the quotient
+    // (A % B) gives R the remainder
+
+    Number zero(0);
+    Number one(1);
+
     if (op2.sign == '-')
     {
         // (A / B)  ==  -(A / (-B))
         return (*this / op2.inverse()).inverse();
     }
 
-    Number zero(0);
+    // At this point, 0 <= B
     if (op2 == zero)
     {
-        return zero;
-        // division is not defined when divisor is 0, but we still return 0
+        // Division operation is not defined for (B == 0), but we still return 0
         // because we will never let this case arise in the first place
+        return zero;
     }
 
-    // At this point, both Numbers are positive
-    // printf("\n( Division algo is used )\n");
-    Number dividend = *this; // since we need to update it
-    Number quotient(0);      // quotient is initialised with Number 0
-    while (dividend > op2 || dividend == op2)
+    // At this point, 0 < B
+    if (op2 == one)
     {
-        Number temp = dividend - op2;
-        dividend = temp;
-
-        Number one(1);
-        quotient = quotient + one;
+        // (A / 1) == A
+        return *this;
     }
-    return quotient;
+
+    //  At this point, 1 < B
+    Number remainder = *this % op2;
+    Number dividend = *this - remainder;
+    if (dividend < zero)
+    {
+        // (A / B) == -((-A) / B)
+        return (dividend.inverse() / op2).inverse();
+    }
+    // At this point, 0 <= A && 1 < B
+    // printf("\n( Division algo is used )\n");
+
+    Number quoteint;
+    remainder = zero;
+
+    while (dividend.magn.size() > 0)
+    {
+        // Extracting next digit from dividend
+        char nextDigit = dividend.magn.back();
+        dividend.magn.pop_back();
+
+        // removing all leading zeros from remainder
+        while (remainder.magn.size() > 0 && remainder.magn.back() == '0')
+        {
+            remainder.magn.pop_back();
+        }
+        // next 3 lines are equivalent to remainder.push_front();
+        reverse(remainder.magn.begin(), remainder.magn.end());
+        remainder.magn.push_back(nextDigit);
+        reverse(remainder.magn.begin(), remainder.magn.end());
+
+        // finding the largest multiple of divisor that fits in the remainder
+        int factor = 9;
+        Number nine(9);
+        Number multiple = op2 * nine;
+        while (multiple > remainder)
+        {
+            // This multiple is too big to fit in
+            // check for a lower multiple
+            Number temp = multiple - op2;
+            multiple = temp;
+            // factor is decremented by 1 as well
+            factor -= 1;
+        }
+
+        // updating the remainder for next iteration
+        Number temp = remainder - multiple;
+        remainder = temp;
+        // updating the quotient for next iteration
+        quoteint.magn.push_back(factor + '0');
+    }
+    // adjusting the quotient
+    reverse(quoteint.magn.begin(), quoteint.magn.end());
+    while (quoteint.magn.size() > 1 && quoteint.magn.back() == '0')
+    {
+        quoteint.magn.pop_back();
+    }
+    return quoteint;
 }
 Number Number::operator%(Number op2)
 {
-    Number zero(0);
-    Number two(2);
-    if (op2 < two)
-    {
-        return zero;
-        // modulus must be greater than 1, but we still return 0
-        // because we will never let this case arise in the first place
-    }
+    // Given the relations :
+    // [A = B*Q + R] && [0 <= R < B]
+    // We say:
+    // (A / B) gives Q the quotient
+    // (A % B) gives R the remainder
 
-    // At this point, modulus > 1
-    // printf("\n( Division algo is used )\n");
-    Number remainder = *this; // since we need to update it
-    while (remainder > op2 || remainder == op2)
+    Number zero(0);
+    Number one(1);
+
+    if (op2 < one || op2 == one)
     {
-        Number temp = remainder - op2;
-        remainder = temp;
+        // (0 % B) == 0
+        // Modulus operation is not defined for (B <= 1), but we still return 0
+        // because we will never let this case arise in the first place
+        return zero;
     }
-    while (remainder < zero)
+    // At this point, 1 < B
+    if (*this < zero)
     {
-        Number temp = remainder + op2;
+        // (A % B) == B - ((-A - 1) % B) - 1
+        return op2 - ((this->inverse() - one) % op2) - one;
+    }
+    // At this point, 0 <= A && 1 < B
+    // printf("\n( Division algo is used )\n");
+
+    Number dividend = *this; // a copy for making updates
+    Number remainder;
+
+    while (dividend.magn.size() > 0)
+    {
+        // Extracting next digit from dividend
+        char nextDigit = dividend.magn.back();
+        dividend.magn.pop_back();
+
+        // removing all leading zeros from remainder
+        while (remainder.magn.size() > 0 && remainder.magn.back() == '0')
+        {
+            remainder.magn.pop_back();
+        }
+        // next 3 lines are equivalent to remainder.push_front();
+        reverse(remainder.magn.begin(), remainder.magn.end());
+        remainder.magn.push_back(nextDigit);
+        reverse(remainder.magn.begin(), remainder.magn.end());
+
+        // finding the largest multiple of divisor that fits in the remainder
+        Number nine(9);
+        Number multiple = op2 * nine;
+        while (multiple > remainder)
+        {
+            // This multiple is too big to fit in
+            // check for a lower multiple
+            Number temp = multiple - op2;
+            multiple = temp;
+        }
+
+        // updating the remainder for next iteration
+        Number temp = remainder - multiple;
         remainder = temp;
     }
     return remainder;
