@@ -138,7 +138,7 @@ bool Number::operator<(Number op2)
     }
 
     // both Numbers have same signs and same no of digits
-    for (int i = this->magn.size() - 1; i >= 0; i++)
+    for (int i = this->magn.size() - 1; i >= 0; i--)
     {
         if (this->magn[i] < op2.magn[i])
         {
