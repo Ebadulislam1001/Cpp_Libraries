@@ -543,6 +543,7 @@ Number Number::operator^(Number op2)
     return power;
 }
 
+
 int main()
 {
     Number A;
@@ -559,119 +560,75 @@ int main()
         cout << "\nEnter your choice: ";
         cin >> choice;
 
-        switch (choice)
-
-        {
-        case 0:
-        {
+        if(choice == 0){
             cout << "\nGoodBye World!\n";
             return 0;
         }
+        
+        string strNum;
+        cout << "Enter second operand: ";
+        cin >> strNum;
+        Number B(strNum);
+        
+        Number zero(0);
+        Number two(2);
+
+        if(choice == 4 and B == zero){
+                printf("Exception: Cannot divide by ZERO !\n");
+                continue;
+        }
+        if (choice == 5 and B < two){
+            printf("Exception: Modulus must be greater than (+1) !\n");
+            continue;
+        }
+
+        Number Result;
+        string res_str;
+        
+        switch (choice)
+        {
         case 1:
         {
-            string strNum;
-            cout << "Enter second operand: ";
-            cin >> strNum;
-            Number B(strNum);
-
-            Number Result = A + B;
-            A.show("\nResult = (", ")");
-            B.show(" + (", ")");
-            Result.show(" = (", ")\n");
-
-            A = Result;
+            Result = A + B;
+            res_str = " + ("; 
             break;
         }
         case 2:
         {
-            string strNum;
-            cout << "Enter second operand: ";
-            cin >> strNum;
-            Number B(strNum);
-
-            Number Result = A - B;
-            A.show("\nResult = (", ")");
-            B.show(" - (", ")");
-            Result.show(" = (", ")\n");
-
-            A = Result;
+            Result = A - B;
+            res_str = " - (";
             break;
         }
         case 3:
         {
-            string strNum;
-            cout << "Enter second operand: ";
-            cin >> strNum;
-            Number B(strNum);
-
-            Number Result = A * B;
-            A.show("\nResult = (", ")");
-            B.show(" * (", ")");
-            Result.show(" = (", ")\n");
-
-            A = Result;
+            Result = A * B;
+            res_str = " * (";
             break;
         }
         case 4:
         {
-            string strNum;
-            cout << "Enter second operand: ";
-            cin >> strNum;
-            Number B(strNum);
-            Number zero(0);
-
-            if (B == zero)
-            {
-                printf("Exception: Cannot divide by ZERO !\n");
-                break;
-            }
-
-            Number Result = A / B;
-            A.show("\nResult = (", ")");
-            B.show(" / (", ")");
-            Result.show(" = (", ")\n");
-
-            A = Result;
+            Result = A / B;
+            res_str = " / (";    
             break;
         }
         case 5:
         {
-            string strNum;
-            cout << "Enter second operand: ";
-            cin >> strNum;
-            Number B(strNum);
-            Number two(2);
-
-            if (B < two)
-            {
-                printf("Exception: Modulus must be greater than (+1) !\n");
-                break;
-            }
-
-            Number Result = A % B;
-            A.show("\nResult = (", ")");
-            B.show(" % (", ")");
-            Result.show(" = (", ")\n");
-
-            A = Result;
+            Result = A % B;
+            res_str = " % (";    
             break;
         }
         case 6:
         {
-            string strNum;
-            cout << "Enter second operand: ";
-            cin >> strNum;
-            Number B(strNum);
-
-            Number Result = A ^ B;
-            A.show("\nResult = (", ")");
-            B.show(" ^ (", ")");
-            Result.show(" = (", ")\n");
-            printf("No of digits = %d", Result.getSize());
-
-            A = Result;
+            Result = A ^ B;
+            res_str = " ^ (";    
             break;
         }
         }
+        A.show("\nResult = (", ")");
+        B.show(res_str,")");
+        Result.show(" = (", ")\n");
+        if(choice == 6) printf("No of digits = %d", Result.getSize());
+        A = Result;
     }
 }
+
