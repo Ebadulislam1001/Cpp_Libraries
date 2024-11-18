@@ -1,188 +1,196 @@
 #include <iostream>
+#include <vector>
 using namespace std;
 
 class Matrix
 {
 private:
     // attributes
-    int rowCount;
-    int colCount;
-    double val[10][10];
+    vector<vector<double>> vals;
 
 public:
     // constructors
-    Matrix();
-    Matrix(int r, int c);
-    Matrix(Matrix &B);
+    Matrix();                            // initialise an empty matrix
+    Matrix(int R, int C);                // prompt the user to enter the elements
+    Matrix(int R, int C, double filler); // initialise a matrix with the given elements
+    Matrix(Matrix &B);                   // copy constructor
 
     // methods
     void print();
     int getRowCount();
     int getColCount();
 
-    double det();      // only if the matrix is a square one
-    Matrix minor();    // only if the matrix is a square one
-    Matrix cofactor(); // only if the matrix is a square one
+    Matrix subMatrix(int delRow, int delCol); // to get the submatrix after deleting a row and a column
+    double det();                             // only if the matrix is a square one
+    Matrix minor();                           // only if the matrix is a square one
+    Matrix cofactor();                        // only if the matrix is a square one
     Matrix transpose();
     Matrix adjoint(); // only if the matrix is a square one
     Matrix inverse(); // only if the matrix is a square one && .det != 0
 
     // operators
-    Matrix operator+(Matrix B); // + operator overloaded to add two Matrix
-    Matrix operator*(Matrix B); // + operator overloaded to mul two Matrix
-    Matrix operator*(double k); // + operator overloaded to mul a Matrix with an scalar int
+    Matrix operator+(Matrix B); // + operator overloaded to find the sum of two Matrices
+    Matrix operator-(Matrix B); // - operator overloaded to find the difference of two Matrices
+    Matrix operator*(Matrix B); // * operator overloaded to find the product of two Matrices
+    Matrix operator*(double k); // * operator overloaded to find the scalar product of a Matrix
+    // TODO:
+    // Matrix operator^(int x);    // ^ operator overloaded to find the power of a Matrix
 };
 
 Matrix::Matrix()
 {
-    this->colCount = 0;
-    this->rowCount = 0;
-    // no need to intialise the elements
-    // as there is no element in the matrix
+    // EMPTY MATRIX:
+    // no need to intialise the elements as there are none
 }
-Matrix::Matrix(int r, int c)
+Matrix::Matrix(int R, int C)
 {
-    this->rowCount = min(r, 10);
-    this->colCount = min(c, 10);
-
-    for (int i = 0; i < this->rowCount; i++)
+    for (int i = 0; i < R; i++)
     {
-        cout << "Enter {" << this->colCount << "} elements for row " << i << " : ";
-        for (int j = 0; j < this->colCount; j++)
+        vector<double> row;
+        printf("Enter %d elements for %dth row: ", C, i + 1);
+        for (int j = 0; j < C; j++)
         {
-            cin >> this->val[i][j];
+            double temp;
+            scanf("%lf", &temp);
+            row.push_back(temp);
         }
+        this->vals.push_back(row);
+    }
+}
+Matrix::Matrix(int R, int C, double filler)
+{
+    for (int i = 0; i < R; i++)
+    {
+        vector<double> row(C, filler);
+        this->vals.push_back(row);
     }
 }
 Matrix::Matrix(Matrix &B)
 {
-    this->rowCount = B.rowCount;
-    this->colCount = B.colCount;
-
-    for (int i = 0; i < this->rowCount; i++)
+    for (int i = 0; i < B.getRowCount(); i++)
     {
-        for (int j = 0; j < this->colCount; j++)
+        vector<double> row;
+        for (int j = 0; j < this->getColCount(); j++)
         {
-            this->val[i][j] = B.val[i][j];
+            row.push_back(B.vals[i][j]);
         }
+        this->vals.push_back(row);
     }
 }
 
 void Matrix::print()
 {
-    for (int i = 0; i < this->rowCount; i++)
+    for (int i = 0; i < this->getRowCount(); i++) // can also use: i < this->vals.size();
     {
-        for (int j = 0; j < this->colCount; j++)
+        for (int j = 0; j < this->getColCount(); j++) // can also use: j < this->vals[i].size();
         {
-            printf(" %5.2lf ", this->val[i][j]); // I personally prefer printf much more
+            printf(" %5.2lf ", this->vals[i][j]); // I personally prefer printf much more
         }
-        cout << endl;
+        printf("\n");
     }
 }
 int Matrix::getRowCount()
 {
-    return this->rowCount;
+    return this->vals.size();
 }
 int Matrix::getColCount()
 {
-    return this->colCount;
+    return (this->vals.size() > 0) ? this->vals[0].size() : 0;
 }
 
+Matrix Matrix::subMatrix(int delRow, int delCol)
+{
+    if (delRow < 0 || this->getRowCount() <= delRow || delCol < 0 || this->getColCount() <= delCol)
+    {
+        Matrix sub;
+        return sub; // return an empty matrix
+    }
+    if (this->getRowCount() <= 1 || this->getColCount() <= 1)
+    {
+        Matrix sub;
+        return sub; // return an empty matrix
+    }
+
+    Matrix sub(this->getRowCount() - 1, this->getColCount() - 1, 0);
+
+    for (int i = 0, x = 0; i < this->getRowCount(); i++)
+    {
+        for (int j = 0, y = 0; j < this->getColCount(); j++)
+        {
+            if (i != delRow && j != delCol)
+            {
+                sub.vals[x][y] = this->vals[i][j];
+            }
+            y += (j != delCol);
+        }
+        x += (i != delRow);
+    }
+    return sub;
+}
 double Matrix::det()
 {
-    if (this->rowCount != this->colCount || this->rowCount == 0) // Not a square matrix
+    if (this->getRowCount() != this->getColCount()) // Not a square matrix
     {
+        printf("\nException: Given matrix is a non-square matrix\n");
         return 0;
     }
-    else if (this->rowCount == 1) // base case
+    if (this->getRowCount() == 1) // base case
     {
-        return this->val[0][0];
+        return this->vals[0][0];
+    }
+    if (this->getRowCount() == 0) // base case
+    {
+        // NOTE: det of an empty matrix is 1 and not 0
+        return 1;
     }
 
     double ans = 0;
-    for (int i = 0; i < this->rowCount; i++)
-    {
-        Matrix sub;
-        sub.rowCount = this->rowCount - 1;
-        sub.colCount = this->colCount - 1;
-        for (int x = 0, j = 0; x < this->rowCount; x++)
-        {
-            for (int y = 1; x != i && y < this->rowCount; y++)
-            {
-                sub.val[j][y - 1] = this->val[x][y];
-            }
-            j += (x != i);
-        }
 
-        if (i % 2 == 0)
-        {
-            ans += this->val[i][0] * sub.det();
-        }
-        else
-        {
-            ans -= this->val[i][0] * sub.det();
-        }
+    for (int i = 0; i < this->getRowCount(); i++)
+    {
+        Matrix sub = this->subMatrix(i, 0);
+        double temp = this->vals[i][0] * sub.det();
+        ans += (i % 2 == 0) ? (temp) : (0 - temp);
     }
     return ans;
 }
 Matrix Matrix::minor()
 {
-    Matrix M;
-    if (this->rowCount != this->colCount || this->rowCount < 2) // Not a square matrix
+    if (this->getRowCount() != this->getColCount()) // Not a square matrix
     {
+        printf("\nException: Given matrix is a non-square matrix\n");
+        Matrix M;
         return M; // return an empty matrix
     }
 
-    M.rowCount = this->rowCount;
-    M.colCount = this->colCount;
+    Matrix M(this->getRowCount(), this->getColCount(), 0);
 
-    for (int i = 0; i < this->rowCount; i++)
+    for (int i = 0; i < this->getRowCount(); i++)
     {
-        for (int j = 0; j < this->colCount; j++)
+        for (int j = 0; j < this->getColCount(); j++)
         {
-            // lets calculate: M[i][j] = det(sub)
-            Matrix sub;
-            sub.rowCount = this->rowCount - 1;
-            sub.colCount = this->colCount - 1;
-            for (int x = 0, p = 0; x < this->rowCount; x++)
-            {
-                if (x == i)
-                {
-                    continue;
-                }
-                for (int y = 0, q = 0; y < this->colCount; y++)
-                {
-                    if (y == j)
-                    {
-                        continue;
-                    }
-                    sub.val[p][q] = this->val[x][y];
-                    q += 1;
-                }
-                p += 1;
-            }
-            M.val[i][j] = sub.det();
+            Matrix sub = this->subMatrix(i, j);
+            M.vals[i][j] = sub.det();
         }
     }
     return M;
 }
 Matrix Matrix::cofactor()
 {
-    Matrix R;
-    if (this->rowCount != this->colCount || this->rowCount < 2) // Not a square matrix
+    if (this->getRowCount() != this->getColCount()) // Not a square matrix
     {
+        printf("\nException: Given matrix is a non-square matrix\n");
+        Matrix R;
         return R; // return an empty matrix
     }
 
-    R = this->minor();
-    for (int i = 0; i < this->rowCount; i++)
+    Matrix R = this->minor();
+
+    for (int i = 0; i < this->getRowCount(); i++)
     {
-        for (int j = 0; j < this->colCount; j++)
+        for (int j = 0; j < this->getColCount(); j++)
         {
-            if ((i % 2) != (j % 2))
-            {
-                R.val[i][j] = 0 - R.val[i][j];
-            }
+            R.vals[i][j] *= ((i % 2) == (j % 2)) ? 1 : -1;
         }
     }
 
@@ -190,15 +198,13 @@ Matrix Matrix::cofactor()
 }
 Matrix Matrix::transpose()
 {
-    Matrix R;
-    R.rowCount = this->colCount;
-    R.colCount = this->rowCount;
+    Matrix R(this->getColCount() - 1, this->getRowCount() - 1, 0);
 
-    for (int i = 0; i < this->rowCount; i++)
+    for (int i = 0; i < this->getRowCount(); i++)
     {
-        for (int j = 0; j < this->colCount; j++)
+        for (int j = 0; j < this->getColCount(); j++)
         {
-            R.val[j][i] = this->val[i][j];
+            R.vals[j][i] = this->vals[i][j];
         }
     }
 
@@ -206,97 +212,97 @@ Matrix Matrix::transpose()
 }
 Matrix Matrix::adjoint()
 {
-    Matrix R;
-    if (this->rowCount != this->colCount || this->rowCount < 2) // Not a square matrix
+    if (this->getRowCount() != this->getColCount()) // Not a square matrix
     {
+        printf("\nException: Given matrix is a non-square matrix\n");
+        Matrix R;
         return R; // return an empty matrix
     }
 
-    R = this->cofactor();
-
-    Matrix temp = R.transpose();
-    R = temp;
+    Matrix temp = this->cofactor();
+    Matrix R = temp.transpose();
 
     return R;
 }
 Matrix Matrix::inverse()
 {
-    Matrix R;
-    if (this->rowCount != this->colCount || this->rowCount == 0) // Not a square matrix
+    if (this->getRowCount() != this->getColCount()) // Not a square matrix
     {
+        printf("\nException: Given matrix is a non-square matrix\n");
+        Matrix R;
         return R; // return an empty matrix
     }
 
     double D = this->det();
     if (D == 0)
     {
+        printf("\nException: Given matrix has a zero determinant\n");
+        Matrix R;
         return R; // return an empty matrix
     }
 
-    if (this->rowCount == 1)
-    {
-        R.val[0][0] = 1 / D;
-        return R;
-    }
-
-    R = this->adjoint();
-
-    Matrix temp = R * (1 / D);
-    R = temp;
+    Matrix temp = this->adjoint();
+    Matrix R = temp * (1 / D);
 
     return R;
 }
 
 Matrix Matrix::operator+(Matrix B)
 {
-    Matrix R;
-
-    if (this->rowCount != B.rowCount || this->colCount != B.colCount)
+    if (this->getRowCount() != B.getRowCount() || this->getColCount() != B.getColCount())
     {
         // if the arrays are not compatible for addition
         // It returns an empty matrix
+        Matrix R;
         return R;
     }
 
-    R.rowCount = this->rowCount;
-    R.colCount = this->colCount;
+    Matrix R(this->getRowCount(), this->getColCount(), 0);
 
-    for (int i = 0; i < this->rowCount; i++)
+    for (int i = 0; i < this->getRowCount(); i++)
     {
-        for (int j = 0; j < this->colCount; j++)
+        for (int j = 0; j < this->getColCount(); j++)
         {
-            R.val[i][j] = this->val[i][j] + B.val[i][j];
+            R.vals[i][j] = (this->vals[i][j] + B.vals[i][j]);
         }
     }
 
+    return R;
+}
+Matrix Matrix::operator-(Matrix B)
+{
+    // if (this->rowCount != B.rowCount || this->colCount != B.colCount)
+    // {
+    //     // no need to check this condition as it is already checked in the + operator
+    // }
+
+    Matrix R = (*this) + (B * (-1));
     return R;
 }
 Matrix Matrix::operator*(Matrix B)
 {
     // say this is (P x Q)
     // and B is    (R x S)
-    Matrix R;
 
-    if (this->colCount != B.rowCount) // Q != R
+    if (this->getColCount() != B.getRowCount()) // Q != R
     {
-        // if the arrays are not compatible for addition
+        // if the arrays are not compatible for multiplication
         // It returns an empty matrix
+        Matrix R;
         return R;
     }
 
     // R is of the order (P x S)
-    R.rowCount = this->rowCount;
-    R.colCount = B.colCount;
+    Matrix R(this->getRowCount(), B.getColCount(), 0);
 
-    for (int i = 0; i < this->rowCount; i++) // P
+    for (int i = 0; i < this->getRowCount(); i++) // P
     {
-        for (int j = 0; j < B.colCount; j++) // S
+        for (int j = 0; j < B.getColCount(); j++) // S
         {
-            R.val[i][j] = 0;
-            for (int k = 0; k < B.rowCount; k++) // Q or R
+            for (int k = 0; k < B.getRowCount(); k++) // Q or R
             {
                 // C[i][j] += (A[i][k] * B[k][j]);
-                R.val[i][j] += (this->val[i][k] * B.val[k][j]);
+                R.vals[i][j] += (this->vals[i][k] * B.vals[k][j]);
             }
         }
     }
@@ -305,16 +311,13 @@ Matrix Matrix::operator*(Matrix B)
 }
 Matrix Matrix::operator*(double k)
 {
-    Matrix R;
+    Matrix R(this->getRowCount(), this->getColCount(), 0);
 
-    R.rowCount = this->rowCount;
-    R.colCount = this->colCount;
-
-    for (int i = 0; i < this->rowCount; i++)
+    for (int i = 0; i < this->getRowCount(); i++)
     {
-        for (int j = 0; j < this->colCount; j++)
+        for (int j = 0; j < this->getColCount(); j++)
         {
-            R.val[i][j] = this->val[i][j] * k;
+            R.vals[i][j] = (this->vals[i][j] * k);
         }
     }
     return R;
@@ -324,153 +327,155 @@ int main()
 {
     int r, c;
 
-    cout << "Number of rows for Matrix A: ";
-    cin >> r;
-    cout << "Number of cols for Matrix A: ";
-    cin >> c;
+    printf("Number of rows for Matrix A: ");
+    scanf("%d", &r);
+    printf("Number of cols for Matrix A: ");
+    scanf("%d", &c);
     Matrix A(r, c);
 
-    cout << "\nMatrix A is \n";
+    printf("\nMatrix A is \n");
     A.print();
 
     while (true)
     {
         int choice;
-        cout << "\n######## MENU ########\n";
-        cout << "\t1. Matrix Addition\n\t2. Matrix Subtraction\n";
-        cout << "\t3. Matrix Multiplication\n\t4. Scalar Multiplication\n";
-        cout << "\t5. Determinant of Matrix\n\t6. Transpose of Matrix\n";
-        cout << "\t7. Inverse of Matrix\n";
-        cout << "\t0. Exit\n";
-        cout << "\nEnter your choice: ";
-        cin >> choice;
+        printf("\n######## MENU ########\n");
+        printf("\t1. Matrix Addition\n\t2. Matrix Subtraction\n");
+        printf("\t3. Matrix Multiplication\n\t4. Scalar Multiplication\n");
+        printf("\t5. Determinant of Matrix\n\t6. Transpose of Matrix\n");
+        printf("\t7. Inverse of Matrix\n");
+        printf("\t0. Exit\n");
+        printf("\nEnter your choice: ");
+        scanf("%d", &choice);
         switch (choice)
         {
         case 0:
         {
-            cout << "Terminated with code = 0\n";
+            printf("Terminated with code = 0\n");
             return 0;
         }
         case 1:
         {
-            cout << "Number of rows for Matrix B: ";
-            cin >> r;
-            cout << "Number of cols for Matrix B: ";
-            cin >> c;
+            printf("Number of rows for Matrix B: ");
+            scanf("%d", &r);
+            printf("Number of cols for Matrix B: ");
+            scanf("%d", &c);
             if (r != A.getRowCount() || c != A.getColCount())
             {
-                cout << "Matrix dimensions are incompatible for Addition\n";
+                printf("Matrix dimensions are incompatible for Addition\n");
                 break;
             }
 
             Matrix B(r, c);
-            cout << "\nMatrix A :\n";
+            printf("\nMatrix A :\n");
             A.print();
-            cout << "\nMatrix B :\n";
+            printf("\nMatrix B :\n");
             B.print();
 
             Matrix temp = A + B;
             A = temp;
-            cout << "\nMatrix A + Matrix B :\n";
+            printf("\nMatrix A + Matrix B :\n");
             A.print();
             break;
         }
         case 2:
         {
-            cout << "Number of rows for Matrix B: ";
-            cin >> r;
-            cout << "Number of cols for Matrix B: ";
-            cin >> c;
+            printf("Number of rows for Matrix B: ");
+            scanf("%d", &r);
+            printf("Number of cols for Matrix B: ");
+            scanf("%d", &c);
             if (r != A.getRowCount() || c != A.getColCount())
             {
-                cout << "Matrix dimensions are incompatible for Subtraction\n";
+                printf("Matrix dimensions are incompatible for Subtraction\n");
                 break;
             }
 
             Matrix B(r, c);
-            cout << "\nMatrix A :\n";
+            printf("\nMatrix A :\n");
             A.print();
-            cout << "\nMatrix B :\n";
+            printf("\nMatrix B :\n");
             B.print();
 
-            Matrix temp = A + (B * (-1));
+            Matrix temp = A - B;
             A = temp;
-            cout << "\nMatrix A - Matrix B :\n";
+            printf("\nMatrix A - Matrix B :\n");
             A.print();
             break;
         }
         case 3:
         {
-            cout << "Number of rows for Matrix B: ";
-            cin >> r;
-            cout << "Number of cols for Matrix B: ";
-            cin >> c;
+            printf("Number of rows for Matrix B: ");
+            scanf("%d", &r);
+            printf("Number of cols for Matrix B: ");
+            scanf("%d", &c);
             if (A.getColCount() != r)
             {
-                cout << "Matrix dimensions are incompatible for Multiplication\n";
+                printf("Matrix dimensions are incompatible for Multiplication\n");
                 break;
             }
 
             Matrix B(r, c);
-            cout << "\nMatrix A :\n";
+            printf("\nMatrix A :\n");
             A.print();
-            cout << "\nMatrix B :\n";
+            printf("\nMatrix B :\n");
             B.print();
 
             Matrix temp = A * B;
             A = temp;
-            cout << "\nMatrix A * Matrix B :\n";
+            printf("\nMatrix A * Matrix B :\n");
             A.print();
             break;
         }
         case 4:
         {
             double k;
-            cout << "Enter the scalar value: ";
-            cin >> k;
+            printf("Enter the scalar value: ");
+            scanf("%lf", &k);
 
-            cout << "\nMatrix A :\n";
+            printf("\nMatrix A :\n");
             A.print();
-            cout << "\nk = " << k << "\n";
+            printf("\nk = %lf\n", k);
 
             Matrix temp = A * k;
             A = temp;
-            cout << "\nMatrix A * k :\n";
+            printf("\nMatrix A * k :\n");
             A.print();
             break;
         }
         case 5:
         {
-            cout << "\nMatrix A :\n";
+            printf("\nMatrix A :\n");
             A.print();
-            cout << "\ndeterminant(A) = " << A.det() << "\n";
+
+            double determinant = A.det();
+            printf("\ndet(A) = %lf\n", determinant);
             break;
         }
         case 6:
         {
-            cout << "\nMatrix A :\n";
+            printf("\nMatrix A :\n");
             A.print();
 
             Matrix temp = A.transpose();
             A = temp;
-            cout << "\nTranspose of A :\n";
+            printf("\nTranspose of A :\n");
             A.print();
             break;
         }
         case 7:
         {
-            cout << "\nMatrix A :\n";
+            printf("\nMatrix A :\n");
             A.print();
 
             Matrix temp = A.inverse();
             A = temp;
-            cout << "\nInverse of A :\n";
+            printf("\nInverse of A :\n");
             A.print();
             break;
         }
         default:
         {
-            cout << "Invalid Choice\n";
+            printf("Invalid Choice\n");
             break;
         }
         }
