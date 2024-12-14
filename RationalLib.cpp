@@ -3,7 +3,7 @@
 #include <algorithm>
 using namespace std;
 
-class Rational_Number
+class Rational
 {
 private:
     // a rational number has two components
@@ -13,24 +13,24 @@ private:
 
 public:
     // constructors
-    Rational_Number();
-    Rational_Number(Number num, Number den);
-    Rational_Number(Rational_Number &rational);
+    Rational();
+    Rational(Number num, Number den);
+    Rational(Rational &rational);
 
     // util methods
     void show();
     void show(string prefix, string suffix);
 
     // comparisonoperators
-    bool operator<(Rational_Number rational);
-    bool operator>(Rational_Number rational);
-    bool operator==(Rational_Number rational);
+    bool operator<(Rational rational);
+    bool operator>(Rational rational);
+    bool operator==(Rational rational);
 
     // arithmetic operators
-    Rational_Number additive_inverse();
-    Rational_Number multiplicative_inverse();
-    Rational_Number operator+(Rational_Number rational);
-    Rational_Number operator-(Rational_Number rational);
-    Rational_Number operator*(Rational_Number rational);
-    Rational_Number operator/(Rational_Number rational);
+    Rational additive_inverse();
+    Rational multiplicative_inverse();
+    Rational operator+(Rational rational);
+    Rational operator-(Rational rational);
+    Rational operator*(Rational rational);
+    Rational operator/(Rational rational);
 };
