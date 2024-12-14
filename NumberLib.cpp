@@ -573,11 +573,11 @@ int main()
         Number zero(0);
         Number two(2);
 
-        if(choice == 4 and B == zero){
+        if(choice == 4 && B == zero){
                 printf("Exception: Cannot divide by ZERO !\n");
                 continue;
         }
-        if (choice == 5 and B < two){
+        if (choice == 5 && B < two){
             printf("Exception: Modulus must be greater than (+1) !\n");
             continue;
         }
