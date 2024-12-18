@@ -3,50 +3,50 @@
 #include <algorithm>
 using namespace std;
 
-class Number
+class Integer
 {
 private:
-    // an integer is like a vector
+    // an Integer is like a vector
     // it has two elements: magnitude and sign
     string magn;
     char sign;
 
 public:
     // constructors
-    Number();
-    Number(int num);
-    Number(string num);
-    Number(Number &num);
+    Integer();
+    Integer(int num);
+    Integer(string num);
+    Integer(Integer &num);
 
     // util methods
     int getSize();
     void show();
     void show(string prefix, string suffix);
 
-    // comparisonoperators
-    bool operator<(Number num);
-    bool operator>(Number num);
-    bool operator==(Number num);
+    // comparison operators
+    bool operator<(Integer num);
+    bool operator>(Integer num);
+    bool operator==(Integer num);
 
     // arithmetic operators
-    Number inverse();
-    Number operator+(Number num);
-    Number operator-(Number num);
-    Number operator*(Number num);
-    Number operator/(Number num);
-    Number operator%(Number num);
-    Number operator^(Number num);
+    Integer inverse();
+    Integer operator+(Integer num);
+    Integer operator-(Integer num);
+    Integer operator*(Integer num);
+    Integer operator/(Integer num);
+    Integer operator%(Integer num);
+    Integer operator^(Integer num);
 };
 
-Number::Number()
+Integer::Integer()
 {
-    // default contructor initialises Number 0
+    // default contructor initialises Integer 0
     this->sign = '+';
     this->magn = "0";
 }
-Number::Number(int num)
+Integer::Integer(int num)
 {
-    // initilaises a Number from a given integer
+    // initilaises a Integer from a given integer
     if (num < 0)
     {
         this->sign = '-';
@@ -71,9 +71,9 @@ Number::Number(int num)
         num = num / 10;
     }
 };
-Number::Number(string num)
+Integer::Integer(string num)
 {
-    // initilaises a Number from a given string
+    // initilaises a Integer from a given string
     reverse(num.begin(), num.end());
 
     this->sign = '+';
@@ -94,18 +94,18 @@ Number::Number(string num)
     }
     this->magn = num;
 };
-Number::Number(Number &num)
+Integer::Integer(Integer &num)
 {
     // copy constructor
     this->sign = num.sign;
     this->magn = num.magn;
 }
 
-int Number::getSize()
+int Integer::getSize()
 {
     return this->magn.size();
 }
-void Number::show()
+void Integer::show()
 {
     printf("%c", this->sign);
     for (int i = this->magn.size(); i > 0; i--)
@@ -113,19 +113,19 @@ void Number::show()
         printf("%c", this->magn[i - 1]);
     }
 }
-void Number::show(string prefix, string suffix)
+void Integer::show(string prefix, string suffix)
 {
     printf("%s", prefix.c_str());
     this->show();
     printf("%s", suffix.c_str());
 }
 
-bool Number::operator<(Number op2)
+bool Integer::operator<(Integer op2)
 {
-    // we have two Numbers
+    // we have two Integers
     if (this->sign != op2.sign)
     {
-        // both Numbers have opposite signs
+        // both Integers have opposite signs
         if (this->sign == '-')
         {
             // A < 0 && 0 <= B
@@ -135,14 +135,14 @@ bool Number::operator<(Number op2)
         return false;
     }
 
-    // both Numbers have same signs
+    // both Integers have same signs
     if (this->magn.size() != op2.magn.size())
     {
-        // both Numbers have different no of digits
+        // both Integers have different no of digits
         return ((this->sign == '+') != (this->magn.size() > op2.magn.size()));
     }
 
-    // both Numbers have same signs and same no of digits
+    // both Integers have same signs and same no of digits
     for (int i = this->magn.size() - 1; i >= 0; i--)
     {
         if (this->magn[i] < op2.magn[i])
@@ -154,22 +154,22 @@ bool Number::operator<(Number op2)
             return (this->sign == '-');
         }
     }
-    // both Numbers are equal
+    // both Integers are equal
     return false;
 }
-bool Number::operator==(Number op2)
+bool Integer::operator==(Integer op2)
 {
     // (A == B) if and only if (A.sign == B.sign && A.magn == B.magn)
     return (this->sign == op2.sign && this->magn == op2.magn);
 }
-bool Number::operator>(Number op2)
+bool Integer::operator>(Integer op2)
 {
     return !(*this < op2 || *this == op2);
 }
 
-Number Number::inverse()
+Integer Integer::inverse()
 {
-    Number result = *this;
+    Integer result = *this;
     if (this->sign == '-' || this->magn == "0")
     {
         result.sign = '+';
@@ -178,7 +178,7 @@ Number Number::inverse()
     result.sign = '-';
     return result;
 }
-Number Number::operator+(Number op2)
+Integer Integer::operator+(Integer op2)
 {
     // Converting negative operands to positive
     if (this->sign == '-' && op2.sign == '-')
@@ -197,9 +197,9 @@ Number Number::operator+(Number op2)
         return (*this - op2.inverse());
     }
 
-    // At this point, both Numbers are positive
+    // At this point, both Integers are positive
     // printf("\n( Addition algo is used )\n");
-    Number sum;
+    Integer sum;
     sum.magn = "";
 
     int i = 0;
@@ -236,7 +236,7 @@ Number Number::operator+(Number op2)
 
     return sum;
 }
-Number Number::operator-(Number op2)
+Integer Integer::operator-(Integer op2)
 {
     // Converting negative operands to positive
     if (this->sign == '-' && op2.sign == '-')
@@ -255,11 +255,11 @@ Number Number::operator-(Number op2)
         return (*this + op2.inverse());
     }
 
-    // At this point, both Numbers are positive
+    // At this point, both Integers are positive
     if (*this == op2)
     {
         // (A - A) == 0
-        Number zero(0);
+        Integer zero(0);
         return zero;
     }
     if (*this < op2)
@@ -270,7 +270,7 @@ Number Number::operator-(Number op2)
 
     // At this point, A >= B >= 0
     // printf("\n( Subtraction algo is used )\n");
-    Number difference;
+    Integer difference;
     difference.magn = "";
 
     int i = 0;
@@ -299,7 +299,7 @@ Number Number::operator-(Number op2)
     }
     return difference;
 }
-Number Number::operator*(Number op2)
+Integer Integer::operator*(Integer op2)
 {
     // Converting negative operands to positive
     if (this->sign == '-' && op2.sign == '-')
@@ -318,18 +318,18 @@ Number Number::operator*(Number op2)
         return (*this * op2.inverse()).inverse();
     }
 
-    Number zero(0);
+    Integer zero(0);
     if (*this == zero || op2 == zero)
     {
         return zero;
     }
 
-    // At this point, both Numbers are positive
+    // At this point, both Integers are positive
     // printf("\n( Multiplication algo is used )\n");
-    Number product(0); // product is initialised with Number 0
+    Integer product(0); // product is initialised with Integer 0
     for (int i = 0; i < this->magn.size(); i++)
     {
-        Number partial_product; // what we get after op2 * this->magn[i]
+        Integer partial_product; // what we get after op2 * this->magn[i]
         partial_product.magn = "";
         for (int t = 0; t < i; t++)
         {
@@ -350,12 +350,12 @@ Number Number::operator*(Number op2)
         {
             partial_product.magn.push_back(carry + '0');
         }
-        Number temp = product + partial_product;
+        Integer temp = product + partial_product;
         product = temp;
     }
     return product;
 }
-Number Number::operator/(Number op2)
+Integer Integer::operator/(Integer op2)
 {
     // Given the relations :
     // [A = B*Q + R] && [0 <= R < B]
@@ -363,8 +363,8 @@ Number Number::operator/(Number op2)
     // (A / B) gives Q the quotient
     // (A % B) gives R the remainder
 
-    Number zero(0);
-    Number one(1);
+    Integer zero(0);
+    Integer one(1);
 
     if (op2.sign == '-')
     {
@@ -388,8 +388,8 @@ Number Number::operator/(Number op2)
     }
 
     //  At this point, 1 < B
-    Number remainder = *this % op2;
-    Number dividend = *this - remainder;
+    Integer remainder = *this % op2;
+    Integer dividend = *this - remainder;
     if (dividend < zero)
     {
         // (A / B) == -((-A) / B)
@@ -398,7 +398,7 @@ Number Number::operator/(Number op2)
     // At this point, 0 <= A && 1 < B
     // printf("\n( Division algo is used )\n");
 
-    Number quoteint;
+    Integer quoteint;
     remainder = zero;
 
     while (dividend.magn.size() > 0)
@@ -419,20 +419,20 @@ Number Number::operator/(Number op2)
 
         // finding the largest multiple of divisor that fits in the remainder
         int factor = 9;
-        Number nine(9);
-        Number multiple = op2 * nine;
+        Integer nine(9);
+        Integer multiple = op2 * nine;
         while (multiple > remainder)
         {
             // This multiple is too big to fit in
             // check for a lower multiple
-            Number temp = multiple - op2;
+            Integer temp = multiple - op2;
             multiple = temp;
             // factor is decremented by 1 as well
             factor -= 1;
         }
 
         // updating the remainder for next iteration
-        Number temp = remainder - multiple;
+        Integer temp = remainder - multiple;
         remainder = temp;
         // updating the quotient for next iteration
         quoteint.magn.push_back(factor + '0');
@@ -445,7 +445,7 @@ Number Number::operator/(Number op2)
     }
     return quoteint;
 }
-Number Number::operator%(Number op2)
+Integer Integer::operator%(Integer op2)
 {
     // Given the relations :
     // [A = B*Q + R] && [0 <= R < B]
@@ -453,8 +453,8 @@ Number Number::operator%(Number op2)
     // (A / B) gives Q the quotient
     // (A % B) gives R the remainder
 
-    Number zero(0);
-    Number one(1);
+    Integer zero(0);
+    Integer one(1);
 
     if (op2 < one || op2 == one)
     {
@@ -472,8 +472,8 @@ Number Number::operator%(Number op2)
     // At this point, 0 <= A && 1 < B
     // printf("\n( Division algo is used )\n");
 
-    Number dividend = *this; // a copy for making updates
-    Number remainder;
+    Integer dividend = *this; // a copy for making updates
+    Integer remainder;
 
     while (dividend.magn.size() > 0)
     {
@@ -492,26 +492,26 @@ Number Number::operator%(Number op2)
         reverse(remainder.magn.begin(), remainder.magn.end());
 
         // finding the largest multiple of divisor that fits in the remainder
-        Number nine(9);
-        Number multiple = op2 * nine;
+        Integer nine(9);
+        Integer multiple = op2 * nine;
         while (multiple > remainder)
         {
             // This multiple is too big to fit in
             // check for a lower multiple
-            Number temp = multiple - op2;
+            Integer temp = multiple - op2;
             multiple = temp;
         }
 
         // updating the remainder for next iteration
-        Number temp = remainder - multiple;
+        Integer temp = remainder - multiple;
         remainder = temp;
     }
     return remainder;
 }
-Number Number::operator^(Number op2)
+Integer Integer::operator^(Integer op2)
 {
-    Number zero(0);
-    Number one(1);
+    Integer zero(0);
+    Integer one(1);
 
     if (op2.sign == '-')
     {
@@ -530,14 +530,14 @@ Number Number::operator^(Number op2)
     }
 
     // At this point, 1 < B
-    Number two(2);
-    Number parity = op2 % two; // (B % 2)
-    Number halfEx = op2 / two; // (B / 2)
+    Integer two(2);
+    Integer parity = op2 % two; // (B % 2)
+    Integer halfEx = op2 / two; // (B / 2)
 
     // B = halfEx + halfEx + parity
-    Number temp1 = this->operator^(halfEx); // A ^ (halfEx)
-    Number temp2 = temp1 * temp1;           // A ^ (halfEx + halfEx)
-    Number power = temp2 *((*this) ^ parity);        // A ^ (halfEx + halfEx + parity) = (A ^ B)
+    Integer temp1 = this->operator^(halfEx); // A ^ (halfEx)
+    Integer temp2 = temp1 * temp1;           // A ^ (halfEx + halfEx)
+    Integer power = temp2 *((*this) ^ parity);        // A ^ (halfEx + halfEx + parity) = (A ^ B)
 
     // op2.show("returning after calculting power for(",")\n");
     return power;
@@ -546,7 +546,7 @@ Number Number::operator^(Number op2)
 
 int main()
 {
-    Number A;
+    Integer A;
 
     while (true)
     {
@@ -568,10 +568,10 @@ int main()
         string strNum;
         cout << "Enter second operand: ";
         cin >> strNum;
-        Number B(strNum);
+        Integer B(strNum);
         
-        Number zero(0);
-        Number two(2);
+        Integer zero(0);
+        Integer two(2);
 
         if(choice == 4 && B == zero){
                 printf("Exception: Cannot divide by ZERO !\n");
@@ -582,7 +582,7 @@ int main()
             continue;
         }
 
-        Number Result;
+        Integer Result;
         string res_str;
         
         switch (choice)
