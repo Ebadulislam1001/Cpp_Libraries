@@ -332,6 +332,11 @@ Integer Integer::operator*(Integer op2)
         // (A * B)  ==  -(A * (-B))
         return (*this * op2.inverse()).inverse();
     }
+    if (*this > op2)
+    {
+        // (A * B)  ==  (B * A)
+        return op2 * *this;
+    }
 
     Integer zero(0);
     if (*this == zero || op2 == zero)
