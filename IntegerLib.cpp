@@ -16,7 +16,7 @@ public:
     Integer();
     Integer(int num);
     Integer(string num);
-    Integer(Integer &num);
+    Integer(const Integer &num);
 
     // util methods
     int getSize();
@@ -27,6 +27,9 @@ public:
     bool operator<(Integer num);
     bool operator>(Integer num);
     bool operator==(Integer num);
+    bool operator!=(Integer num);
+    bool operator<=(Integer num);
+    bool operator>=(Integer num);
 
     // arithmetic operators
     Integer inverse();
@@ -94,7 +97,7 @@ Integer::Integer(string num)
     }
     this->magn = num;
 };
-Integer::Integer(Integer &num)
+Integer::Integer(const Integer &num)
 {
     // copy constructor
     this->sign = num.sign;
@@ -157,14 +160,26 @@ bool Integer::operator<(Integer op2)
     // both Integers are equal
     return false;
 }
+bool Integer::operator>(Integer op2)
+{
+    return op2 < *this;
+}
 bool Integer::operator==(Integer op2)
 {
     // (A == B) if and only if (A.sign == B.sign && A.magn == B.magn)
     return (this->sign == op2.sign && this->magn == op2.magn);
 }
-bool Integer::operator>(Integer op2)
+bool Integer::operator!=(Integer op2)
 {
-    return !(*this < op2 || *this == op2);
+    return !(*this == op2);
+}
+bool Integer::operator<=(Integer op2)
+{
+    return !(*this > op2);
+}
+bool Integer::operator>=(Integer op2)
+{
+    return !(*this < op2);
 }
 
 Integer Integer::inverse()
@@ -535,100 +550,98 @@ Integer Integer::operator^(Integer op2)
     Integer halfEx = op2 / two; // (B / 2)
 
     // B = halfEx + halfEx + parity
-    Integer temp1 = this->operator^(halfEx); // A ^ (halfEx)
-    Integer temp2 = temp1 * temp1;           // A ^ (halfEx + halfEx)
-    Integer power = temp2 *((*this) ^ parity);        // A ^ (halfEx + halfEx + parity) = (A ^ B)
+    Integer temp1 = this->operator^(halfEx);    // A ^ (halfEx)
+    Integer temp2 = temp1 * temp1;              // A ^ (halfEx + halfEx)
+    Integer power = temp2 * ((*this) ^ parity); // A ^ (halfEx + halfEx + parity) = (A ^ B)
 
     // op2.show("returning after calculting power for(",")\n");
     return power;
 }
 
+// int main()
+// {
+//     Integer A;
 
-int main()
-{
-    Integer A;
+//     while (true)
+//     {
+//         int choice;
+//         cout << "\n################ MENU ################\n";
+//         A.show("\nNum = (", ")\n");
+//         cout << "\n\t1. Find Sum        \n\t2. Find Difference";
+//         cout << "\n\t3. Find Product    \n\t4. Find Quotient";
+//         cout << "\n\t5. Find Remainder  \n\t6. Find Power";
+//         cout << "\n\t0. Exit\n";
+//         cout << "\nEnter your choice: ";
+//         cin >> choice;
 
-    while (true)
-    {
-        int choice;
-        cout << "\n################ MENU ################\n";
-        A.show("\nNum = (", ")\n");
-        cout << "\n\t1. Find Sum        \n\t2. Find Difference";
-        cout << "\n\t3. Find Product    \n\t4. Find Quotient";
-        cout << "\n\t5. Find Remainder  \n\t6. Find Power";
-        cout << "\n\t0. Exit\n";
-        cout << "\nEnter your choice: ";
-        cin >> choice;
+//         if(choice == 0){
+//             cout << "\nGoodBye World!\n";
+//             return 0;
+//         }
 
-        if(choice == 0){
-            cout << "\nGoodBye World!\n";
-            return 0;
-        }
-        
-        string strNum;
-        cout << "Enter second operand: ";
-        cin >> strNum;
-        Integer B(strNum);
-        
-        Integer zero(0);
-        Integer two(2);
+//         string strNum;
+//         cout << "Enter second operand: ";
+//         cin >> strNum;
+//         Integer B(strNum);
 
-        if(choice == 4 && B == zero){
-                printf("Exception: Cannot divide by ZERO !\n");
-                continue;
-        }
-        if (choice == 5 && B < two){
-            printf("Exception: Modulus must be greater than (+1) !\n");
-            continue;
-        }
+//         Integer zero(0);
+//         Integer two(2);
 
-        Integer Result;
-        string res_str;
-        
-        switch (choice)
-        {
-        case 1:
-        {
-            Result = A + B;
-            res_str = " + ("; 
-            break;
-        }
-        case 2:
-        {
-            Result = A - B;
-            res_str = " - (";
-            break;
-        }
-        case 3:
-        {
-            Result = A * B;
-            res_str = " * (";
-            break;
-        }
-        case 4:
-        {
-            Result = A / B;
-            res_str = " / (";    
-            break;
-        }
-        case 5:
-        {
-            Result = A % B;
-            res_str = " % (";    
-            break;
-        }
-        case 6:
-        {
-            Result = A ^ B;
-            res_str = " ^ (";    
-            break;
-        }
-        }
-        A.show("\nResult = (", ")");
-        B.show(res_str,")");
-        Result.show(" = (", ")\n");
-        if(choice == 6) printf("No of digits = %d", Result.getSize());
-        A = Result;
-    }
-}
+//         if(choice == 4 && B == zero){
+//                 printf("Exception: Cannot divide by ZERO !\n");
+//                 continue;
+//         }
+//         if (choice == 5 && B < two){
+//             printf("Exception: Modulus must be greater than (+1) !\n");
+//             continue;
+//         }
 
+//         Integer Result;
+//         string res_str;
+
+//         switch (choice)
+//         {
+//         case 1:
+//         {
+//             Result = A + B;
+//             res_str = " + (";
+//             break;
+//         }
+//         case 2:
+//         {
+//             Result = A - B;
+//             res_str = " - (";
+//             break;
+//         }
+//         case 3:
+//         {
+//             Result = A * B;
+//             res_str = " * (";
+//             break;
+//         }
+//         case 4:
+//         {
+//             Result = A / B;
+//             res_str = " / (";
+//             break;
+//         }
+//         case 5:
+//         {
+//             Result = A % B;
+//             res_str = " % (";
+//             break;
+//         }
+//         case 6:
+//         {
+//             Result = A ^ B;
+//             res_str = " ^ (";
+//             break;
+//         }
+//         }
+//         A.show("\nResult = (", ")");
+//         B.show(res_str,")");
+//         Result.show(" = (", ")\n");
+//         if(choice == 6) printf("No of digits = %d", Result.getSize());
+//         A = Result;
+//     }
+// }
